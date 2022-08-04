@@ -7,6 +7,7 @@ const promMid = require("express-prometheus-middleware")
 
 const app = express();
 app.use(morgan("dev"))
+app.use(cors())
 
 app.use(promMid({
     metricsPath: '/metrics',
@@ -22,10 +23,21 @@ app.use(promMid({
      * To access /metrics you could do:
      * curl -X GET user:password@localhost:9091/metrics
      */
-    authenticate: req => req.headers.authorization === 'mysecrettoken',
+    // authenticate: req => req.headers.authorization === 'mysecrettoken',
 }));
 
-
+app.use((req, res, next) => {
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    );
+    next();
+});
+app.options('*', (req, res) => {
+    res.json({
+        status: 200
+    });
+});
 app.listen("3000");
 
 app.get("/time", (req, res) => {
